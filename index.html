@@ -1,0 +1,64 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.0/nv.d3.min.css"/>
+  </head>
+  <body>
+    <div id="chart-min">
+          <svg width=900 height=600></svg>
+    </div>
+    <div id="chart-recommended">
+          <svg width=900 height=600></svg>
+    </div>
+    <div id="chart-mixed">
+          <svg width=900 height=600></svg>
+    </div>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.5/d3.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/nvd3/1.7.0/nv.d3.min.js"></script>
+    <script type="text/javascript" src="wl-max.json"></script>
+    <script type="text/javascript" src="wl-recommended.json"></script>
+    <script type="text/javascript" src="wl-mixed-89.json"></script>
+    <script type="text/javascript">
+function downsize_chart(data, selector, title) {
+  var width = 900;
+  return function() {
+    var chart = nv.models.lineChart()
+                      .margin({left: 100})  //Adjust chart margins to give the x-axis some breathing room.
+                                      .useInteractiveGuideline(true)  //We want nice looking tooltips and a guideline!
+                                        .showLegend(true)       //Show the legend, allowing users to turn on/off line series.
+                                                        .showYAxis(true)        //Show the y-axis
+                                                                        .showXAxis(true)        //Show the x-axis
+                                                                          ;
+
+      chart.xAxis     //Chart x-axis settings
+              .axisLabel('# of jumps')
+
+        chart.yAxis     //Chart y-axis settings
+                .axisLabel('wing loading')
+                      .tickFormat(d3.format('.2g'));
+
+          /* Done setting the chart up? Time to render it!*/
+         //You need data...
+
+          d3.select(selector)    //Select the <svg> element you want to render the chart in.   
+                  .datum(data)         //Populate the <svg> element with chart data...
+                        .call(chart);          //Finally, render the chart!
+          d3.select(selector).append('text')
+                .attr('x', width / 2)
+                    .attr('y', 80)
+                        .attr('text-anchor', 'middle')
+                            .attr('class', 'chart-title')
+                            .style("font-size","34px")
+                                .text(title);
+            //Update the chart when window resizes.
+            nv.utils.windowResize(function() { chart.update() });
+              return chart;
+  }
+}
+nv.addGraph(downsize_chart(wlMax,'#chart-min svg','Maximum allowed'))
+nv.addGraph(downsize_chart(wlRecommended,'#chart-recommended svg', 'Recommended'))
+nv.addGraph(downsize_chart(wl89Mixed,'#chart-mixed svg','89kg jumper max vs. recommended'))
+
+    </script>
+  </body>
+</html>
+
